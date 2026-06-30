@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.*
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Large project artifacts
+data/raw/*
+data/processed/*
+data/annotations/*
+models/*
+reports/figures/*
+
+# Keep folder placeholders
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/annotations/.gitkeep
+!models/.gitkeep
+!reports/figures/.gitkeep

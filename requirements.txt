@@ -1,0 +1,20 @@
+# Core scientific Python stack
+numpy>=1.26.0
+pandas>=2.2.0
+matplotlib>=3.8.0
+
+# Computer vision
+opencv-python>=4.9.0
+Pillow>=10.0.0
+
+# Deep learning
+torch>=2.2.0
+torchvision>=0.17.0
+
+# Web interface for later project steps
+streamlit>=1.36.0
+
+# Utilities
+tqdm>=4.66.0
+scikit-learn>=1.4.0
+jupyter>=1.0.0
