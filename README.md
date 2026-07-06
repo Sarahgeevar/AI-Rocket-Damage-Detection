@@ -2,11 +2,11 @@
 
 An aerospace engineering portfolio project that will use computer vision and deep learning to identify visible rocket or spacecraft surface damage from public imagery.
 
-This repository is being built in 10 steps. Step 2 is now complete: aerospace image ingestion and dataset management.
+This repository is being built in 10 steps. Step 3 is now complete: aerospace image acquisition and validation.
 
 ## Project Goal
 
-The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on dataset organization, validation, preprocessing, and metadata. No AI model has been built or trained yet.
+The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on acquiring, organizing, validating, and scoring imagery. No AI model has been built or trained yet.
 
 ## Current Status
 
@@ -27,7 +27,16 @@ Step 2 complete:
 - Dataset summary report generation.
 - Smoke tests for configuration, folders, metadata, and image processing.
 
-Do not continue to Step 3 until Step 2 has been tested.
+Step 3 complete:
+
+- NASA Image and Video Library API client.
+- NASA search support for Space Shuttle, Thermal Protection System, Heat Shield, Spacecraft Inspection, Artemis, SLS, and Launch Vehicle imagery.
+- Image acquisition pipeline that searches, downloads, stores metadata, validates images, and generates reports.
+- Corruption, duplicate, low-resolution, quality, and usefulness scoring.
+- JSON report generation for acquisition quality review.
+- Tests for NASA client parsing, validation logic, usefulness scoring, and reports.
+
+Do not continue to Step 4 until Step 3 has been tested.
 
 ## System Architecture
 
@@ -38,6 +47,12 @@ src/damage_detection/dataset/
 |-- dataset_manager.py   # Main orchestration layer for ingestion and reporting
 |-- image_processor.py   # Validation, resizing, color conversion, normalization, duplicates
 `-- metadata_manager.py  # JSON and CSV metadata records
+
+src/damage_detection/acquisition/
+|-- image_acquisition.py # High-level NASA acquisition, validation, and report workflow
+|-- nasa_client.py       # NASA Image and Video Library API client
+|-- dataset_validator.py # Quality checks, duplicate checks, and usefulness scoring
+`-- dataset_report.py    # JSON acquisition report generation
 ```
 
 The design separates responsibilities so future sources can be added without rewriting the whole pipeline. For example, ESA, SpaceX, launch provider image archives, inspection photos, and public aerospace datasets can each become a new `BaseImageSource` connector.
@@ -66,6 +81,7 @@ AI Rocket Damage Detection/
 |-- scripts/
 |-- src/
 |   `-- damage_detection/
+|       |-- acquisition/
 |       `-- dataset/
 |-- streamlit_app/
 |-- tests/
@@ -133,6 +149,69 @@ records = manager.ingest_from_source(source, category="Artemis", limit=5)
 
 NASA downloads require internet access. The Step 2 tests do not require internet access.
 
+## Step 3 Acquisition Workflow
+
+The Step 3 acquisition workflow is:
+
+1. Search the NASA Image and Video Library API.
+2. Normalize NASA metadata.
+3. Download selected image previews or assets.
+4. Store NASA search metadata locally.
+5. Validate downloaded images.
+6. Score quality and usefulness for future rocket damage detection.
+7. Generate JSON validation and summary reports.
+
+Supported NASA search topics:
+
+- `Space Shuttle`
+- `Thermal Protection System`
+- `Heat Shield`
+- `Spacecraft Inspection`
+- `Artemis`
+- `SLS`
+- `Launch Vehicle`
+
+Quality scoring uses:
+
+- Resolution.
+- Aspect ratio.
+- File integrity.
+- Duplicate penalty.
+
+Usefulness scoring uses simple keyword heuristics:
+
+- High value: close-up inspection imagery, heat shield imagery, tile imagery, spacecraft surface imagery.
+- Medium value: rocket body imagery, launch vehicle imagery.
+- Low value: distant launch photos and unrelated space imagery.
+
+## Step 3 Usage Examples
+
+Search NASA metadata without downloading images:
+
+```bash
+PYTHONPATH=src python -c "from damage_detection.acquisition import NASAImageClient; client = NASAImageClient(); print([record.title for record in client.search('Heat Shield', page_size=3)])"
+```
+
+Acquire a small NASA image sample and generate reports:
+
+```bash
+PYTHONPATH=src python -c "from damage_detection.acquisition import ImageAcquisitionPipeline; result = ImageAcquisitionPipeline().acquire_nasa_images('Thermal Protection System', limit=3); print(result['report_path'])"
+```
+
+Run all standard Step 3 NASA searches:
+
+```python
+from damage_detection.acquisition import ImageAcquisitionPipeline
+
+pipeline = ImageAcquisitionPipeline()
+results = pipeline.acquire_supported_nasa_searches(limit_per_query=3)
+
+for result in results:
+    print(result["query"], result["report_path"])
+```
+
+NASA acquisition commands require internet access. The tests use mocked NASA API responses and do not require internet access.
+
 ## Step 2 Testing
 
 Verify configuration loads:
@@ -159,6 +238,32 @@ Expected result:
 4 passed
 ```
 
+## Step 3 Testing
+
+Run the Step 3 tests:
+
+```bash
+PYTHONPATH=src pytest tests/test_acquisition_step3.py
+```
+
+Expected result:
+
+```text
+4 passed
+```
+
+Run Step 2 and Step 3 tests together:
+
+```bash
+PYTHONPATH=src pytest tests/test_dataset_step2.py tests/test_acquisition_step3.py
+```
+
+Expected result:
+
+```text
+8 passed
+```
+
 Expected generated folders:
 
 ```text
@@ -183,9 +288,28 @@ data/metadata/dataset_summary.json
 data/logs/dataset_manager.log
 ```
 
+Expected Step 3 acquisition outputs after a NASA acquisition run:
+
+```text
+data/raw/NASA/<query_slug>/
+data/metadata/acquisition/nasa_<query_slug>_metadata.json
+data/metadata/acquisition/nasa_<query_slug>_validation.json
+data/metadata/acquisition/nasa_<query_slug>_report.json
+```
+
+The Step 3 report JSON contains:
+
+- Image counts.
+- Category counts.
+- Average resolution.
+- Duplicate count.
+- Quality statistics.
+- Usefulness statistics.
+- Per-image validation results.
+
 ## Future Roadmap
 
-- Step 3: collect and organize initial NASA/public aerospace imagery.
+- Step 4: begin dataset curation decisions based on acquisition reports.
 - Add richer annotation support for damage labels.
 - Add dataset quality reports and visual inspection notebooks.
 - Add model training only in a later step.
