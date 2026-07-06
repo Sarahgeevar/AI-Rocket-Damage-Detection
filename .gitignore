@@ -28,6 +28,8 @@ env/
 data/raw/*
 data/processed/*
 data/annotations/*
+data/metadata/*
+data/logs/*
 models/*
 reports/figures/*
 
@@ -35,5 +37,7 @@ reports/figures/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/annotations/.gitkeep
+!data/metadata/.gitkeep
+!data/logs/.gitkeep
 !models/.gitkeep
 !reports/figures/.gitkeep
