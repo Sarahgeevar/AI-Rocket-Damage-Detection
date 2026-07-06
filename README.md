@@ -2,11 +2,11 @@
 
 An aerospace engineering portfolio project that will use computer vision and deep learning to identify visible rocket or spacecraft surface damage from public imagery.
 
-This repository is being built in 10 steps. Step 3 is now complete: aerospace image acquisition and validation.
+This repository is being built in 10 steps. Step 4 is now complete: real NASA image downloading into the project dataset.
 
 ## Project Goal
 
-The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on acquiring, organizing, validating, and scoring imagery. No AI model has been built or trained yet.
+The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on acquiring, organizing, validating, scoring, and downloading imagery. No AI model has been built or trained yet.
 
 ## Current Status
 
@@ -36,7 +36,18 @@ Step 3 complete:
 - JSON report generation for acquisition quality review.
 - Tests for NASA client parsing, validation logic, usefulness scoring, and reports.
 
-Do not continue to Step 4 until Step 3 has been tested.
+Step 4 complete:
+
+- Real NASA public API downloader module.
+- Command-line NASA image download script.
+- Query, category, and limit inputs.
+- Image storage in `data/raw/<category>/`.
+- Download metadata storage in `data/metadata/downloads/`.
+- Duplicate detection using file hashes.
+- Corrupted image detection and skipping.
+- Tests for image saving, metadata writing, duplicate skipping, corruption skipping, and category validation.
+
+Do not continue beyond Step 4 until Step 4 has been tested.
 
 ## System Architecture
 
@@ -51,6 +62,7 @@ src/damage_detection/dataset/
 src/damage_detection/acquisition/
 |-- image_acquisition.py # High-level NASA acquisition, validation, and report workflow
 |-- nasa_client.py       # NASA Image and Video Library API client
+|-- nasa_downloader.py   # Real NASA downloader for data/raw/<category> images
 |-- dataset_validator.py # Quality checks, duplicate checks, and usefulness scoring
 `-- dataset_report.py    # JSON acquisition report generation
 ```
@@ -85,6 +97,8 @@ AI Rocket Damage Detection/
 |       `-- dataset/
 |-- streamlit_app/
 |-- tests/
+|-- scripts/
+|   `-- download_nasa_images.py
 |-- README.md
 `-- requirements.txt
 ```
@@ -212,6 +226,47 @@ for result in results:
 
 NASA acquisition commands require internet access. The tests use mocked NASA API responses and do not require internet access.
 
+## Step 4 NASA Downloader
+
+Step 4 adds a real downloader for NASA Image and Video Library results. It searches NASA, downloads valid image files, skips duplicates, skips corrupted files, stores images in the selected dataset category, and writes metadata for every saved image.
+
+Supported categories:
+
+- `Falcon9`
+- `Starship`
+- `SLS`
+- `Artemis`
+- `Space_Shuttle`
+- `DeltaIV`
+- `AtlasV`
+
+Run the required Step 4 command:
+
+```bash
+python scripts/download_nasa_images.py --query "space shuttle tile inspection" --category Space_Shuttle --limit 25
+```
+
+Expected image output:
+
+```text
+data/raw/Space_Shuttle/
+```
+
+Expected metadata output:
+
+```text
+data/metadata/downloads/Space_Shuttle_space_shuttle_tile_inspection_<timestamp>.json
+```
+
+Each metadata record contains:
+
+- `filename`
+- `NASA title`
+- `NASA description`
+- `URL`
+- `download date`
+- `category`
+
 ## Step 2 Testing
 
 Verify configuration loads:
@@ -264,6 +319,20 @@ Expected result:
 8 passed
 ```
 
+## Step 4 Testing
+
+Run the full test suite:
+
+```bash
+PYTHONPATH=src pytest -v
+```
+
+Expected result:
+
+```text
+12 passed
+```
+
 Expected generated folders:
 
 ```text
@@ -307,9 +376,16 @@ The Step 3 report JSON contains:
 - Usefulness statistics.
 - Per-image validation results.
 
+Expected Step 4 download outputs:
+
+```text
+data/raw/<category>/<downloaded_image_file>
+data/metadata/downloads/<category>_<query_slug>_<timestamp>.json
+```
+
 ## Future Roadmap
 
-- Step 4: begin dataset curation decisions based on acquisition reports.
+- Step 5: begin dataset curation decisions based on acquisition and download reports.
 - Add richer annotation support for damage labels.
 - Add dataset quality reports and visual inspection notebooks.
 - Add model training only in a later step.

@@ -2,5 +2,6 @@
 
 from damage_detection.acquisition.image_acquisition import ImageAcquisitionPipeline
 from damage_detection.acquisition.nasa_client import NASAImageClient
+from damage_detection.acquisition.nasa_downloader import NASAImageDownloader
 
-__all__ = ["ImageAcquisitionPipeline", "NASAImageClient"]
+__all__ = ["ImageAcquisitionPipeline", "NASAImageClient", "NASAImageDownloader"]

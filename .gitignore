@@ -38,6 +38,8 @@ reports/figures/*
 !data/processed/.gitkeep
 !data/annotations/.gitkeep
 !data/metadata/.gitkeep
+!data/metadata/downloads/
+!data/metadata/downloads/.gitkeep
 !data/logs/.gitkeep
 !models/.gitkeep
 !reports/figures/.gitkeep
