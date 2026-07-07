@@ -37,6 +37,13 @@ reports/figures/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/annotations/.gitkeep
+!data/annotations/json/
+!data/annotations/json/.gitkeep
+!data/annotations/yolo/
+!data/annotations/yolo/images/
+!data/annotations/yolo/images/.gitkeep
+!data/annotations/yolo/labels/
+!data/annotations/yolo/labels/.gitkeep
 !data/metadata/.gitkeep
 !data/metadata/downloads/
 !data/metadata/downloads/.gitkeep
