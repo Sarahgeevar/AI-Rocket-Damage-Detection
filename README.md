@@ -2,11 +2,11 @@
 
 An aerospace engineering portfolio project that will use computer vision and deep learning to identify visible rocket or spacecraft surface damage from public imagery.
 
-This repository is being built in 10 steps. Step 5 is now complete: aerospace damage annotation infrastructure for future YOLO training.
+This repository is being built in 10 steps. Step 6 is now complete: a Streamlit dashboard for NASA image review and annotation management.
 
 ## Project Goal
 
-The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on acquiring, organizing, validating, scoring, downloading, and annotating imagery. No AI model has been built or trained yet.
+The final system will use Python, OpenCV, PyTorch, NASA public imagery, and a Streamlit interface to support image-based rocket damage detection. Current work is focused only on acquiring, organizing, validating, scoring, downloading, annotating, and reviewing imagery. No AI model has been built or trained yet.
 
 ## Current Status
 
@@ -56,7 +56,18 @@ Step 5 complete:
 - YOLO label export infrastructure.
 - Tests for schema, save/load, validation rejection, and YOLO export.
 
-Do not continue beyond Step 5 until Step 5 has been tested.
+Step 6 complete:
+
+- Streamlit dashboard for reviewing `data/raw/` NASA images.
+- Image thumbnail and preview components.
+- JSON annotation loading, editing, saving, and deletion workflow.
+- Damage class display from the centralized schema.
+- Dataset statistics for total, annotated, and unannotated images.
+- Class distribution chart.
+- YOLO export button using the existing exporter.
+- Dashboard helper tests.
+
+Do not continue beyond Step 6 until Step 6 has been tested.
 
 ## System Architecture
 
@@ -79,6 +90,13 @@ src/damage_detection/annotation/
 |-- label_schema.py      # Central damage class definitions
 |-- annotation_manager.py # JSON annotation save, load, and validation
 `-- yolo_export.py       # YOLO label export for future training
+
+streamlit_app/
+|-- app.py
+`-- components/
+    |-- annotation_panel.py
+    |-- dataset_stats.py
+    `-- image_viewer.py
 ```
 
 The design separates responsibilities so future sources can be added without rewriting the whole pipeline. For example, ESA, SpaceX, launch provider image archives, inspection photos, and public aerospace datasets can each become a new `BaseImageSource` connector.
@@ -104,7 +122,6 @@ AI Rocket Damage Detection/
 |-- notebooks/
 |-- reports/
 |   `-- figures/
-|-- scripts/
 |-- src/
 |   `-- damage_detection/
 |       |-- acquisition/
@@ -371,6 +388,42 @@ Example:
 
 This infrastructure is ready for a future training pipeline, where the YOLO image and label folders can be split into train/validation sets. Model creation and training are intentionally deferred to a later step.
 
+## Step 6 Streamlit Dashboard
+
+Run the dashboard:
+
+```bash
+streamlit run streamlit_app/app.py
+```
+
+The dashboard supports:
+
+- Loading images from `data/raw/`.
+- Showing thumbnails and a selected image preview.
+- Loading existing JSON templates from `data/annotations/json/`.
+- Displaying all damage classes from the centralized annotation schema.
+- Adding, editing, and deleting annotation rows.
+- Saving updated annotations back to JSON.
+- Viewing dataset statistics.
+- Exporting current annotations to YOLO format.
+
+Dashboard annotation columns:
+
+- `delete`: mark a row for removal before saving.
+- `damage_class`: selected damage class name.
+- `confidence`: manual confidence value between `0.0` and `1.0`.
+- `x`, `y`, `width`, `height`: pixel-space bounding box values.
+- `notes`: optional annotator notes.
+
+The YOLO export button writes:
+
+```text
+data/annotations/yolo/images/
+data/annotations/yolo/labels/
+```
+
+The dashboard is for dataset review and annotation management only. It does not train a model.
+
 ## Step 2 Testing
 
 Verify configuration loads:
@@ -451,6 +504,20 @@ Expected result:
 16 passed
 ```
 
+## Step 6 Testing
+
+Run the full test suite:
+
+```bash
+PYTHONPATH=src pytest -v
+```
+
+Expected result:
+
+```text
+20 passed
+```
+
 Expected generated folders:
 
 ```text
@@ -509,13 +576,24 @@ data/annotations/yolo/images/<image_file>
 data/annotations/yolo/labels/<image_stem>.txt
 ```
 
+Expected Step 6 dashboard behavior:
+
+```text
+streamlit run streamlit_app/app.py
+```
+
+- Opens a local Streamlit dashboard.
+- Shows raw NASA images from `data/raw/`.
+- Saves updated annotations to `data/annotations/json/`.
+- Exports YOLO files to `data/annotations/yolo/`.
+
 ## Future Roadmap
 
-- Step 6: begin dataset curation decisions based on acquisition, download, and annotation reports.
+- Step 7: begin dataset curation decisions based on acquisition, download, annotation, and dashboard review outputs.
 - Add richer annotation review tools for damage labels.
 - Add dataset quality reports and visual inspection notebooks.
 - Add model training only in a later step.
-- Add a Streamlit interface after the core dataset and model pipeline are ready.
+- Expand the Streamlit interface after the core dataset pipeline is stable.
 
 ## Notes
 
